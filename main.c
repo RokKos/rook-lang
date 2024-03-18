@@ -1,27 +1,18 @@
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sysexits.h>
 #include <unistd.h>
 
-typedef char unsigned u8;
-typedef short unsigned u16;
-typedef int unsigned u32;
-typedef long long unsigned u64;
+#include "defines.h"
+#include "memory.h"
 
-typedef char i8;
-typedef short i16;
-typedef int i32;
-typedef long long i64;
-
-typedef float f32;
-typedef double f64;
-
-#define internal static
-#define global static
-#define local_persist static
+#define LEXER_IMPLEMENTATION
+#include "lexer.h"
 
 const char K_COMMAND_RUN[4] = "run\0";
 const char K_COMMAND_BUILD[6] = "build\0";
@@ -29,10 +20,12 @@ const char K_USAGE_INSTRUCTION[] =
     "Usage mmel <command> <file_path>\nCommands:\nrun - Builds and runs the "
     "program\nbuild - Builds the program\n";
 
+internal void log_error(const char *message, const char *file, int line);
+
 i32 main(i32 argc, char **argv) {
 
   if (argc != 3) {
-    perror(K_USAGE_INSTRUCTION);
+    log_error(K_USAGE_INSTRUCTION, __FILE__, __LINE__);
 
     return EX_USAGE;
   }
@@ -44,7 +37,7 @@ i32 main(i32 argc, char **argv) {
   i32 do_build = strcmp(program_command, K_COMMAND_BUILD);
   i32 do_run = strcmp(program_command, K_COMMAND_RUN);
   if (do_build != 0 && do_run != 0) {
-    perror(K_USAGE_INSTRUCTION);
+    log_error(K_USAGE_INSTRUCTION, __FILE__, __LINE__);
 
     return EX_USAGE;
   }
@@ -54,13 +47,13 @@ i32 main(i32 argc, char **argv) {
 
   i32 file_descriptor = open(program_file, O_RDONLY);
   if (file_descriptor == -1) {
-    perror("Error opening program file\n");
+    log_error("Error opening program file", __FILE__, __LINE__);
     return EX_NOINPUT;
   }
 
   struct stat file_stats;
   if (fstat(file_descriptor, &file_stats) == -1) {
-    perror("Error getting file size");
+    log_error("Error getting file size", __FILE__, __LINE__);
     close(file_descriptor);
     return EX_DATAERR;
   }
@@ -69,7 +62,7 @@ i32 main(i32 argc, char **argv) {
   char *file_in_memory = mmap(NULL, file_stats.st_size, PROT_READ, MAP_PRIVATE,
                               file_descriptor, offset);
   if (file_in_memory == MAP_FAILED) {
-    perror("Error mapping file");
+    log_error("Error mapping file", __FILE__, __LINE__);
     close(file_descriptor);
     return EX_IOERR;
   }
@@ -98,8 +91,29 @@ i32 main(i32 argc, char **argv) {
 
   printf("\n\n\n");
 
-  for (i64 index = 0; index < file_stats.st_size; ++index) {
-    printf("%c", file_in_memory[index]);
+  CompilerMemory memory;
+  memory.lexer_memory_size = KILOBYTES(200);
+  memory.lexer_memory_ptr = malloc(memory.lexer_memory_size * sizeof(u8));
+
+  if (memory.lexer_memory_ptr == NULL) {
+    log_error("Cannot allocate 200kb for lexer", __FILE__, __LINE__);
+
+    munmap(file_in_memory, file_stats.st_size);
+    close(file_descriptor);
+
+    return EX_DATAERR;
+  }
+
+  lexer_input lexer_input = {.file_buffer_ptr = file_in_memory,
+                             .file_buffer_lenght = file_stats.st_size,
+                             .compiler_memory = memory};
+  lexer_output lexer_output = lexer_stage(lexer_input);
+
+  lexeme *lexer_memory = (lexeme *)memory.lexer_memory_ptr;
+  for (i64 index = 0; index < lexer_output.lexemes_count; ++index) {
+    printf("Type:%d\nLine:%lld\nStart: %lld End: %lld\n\n", lexer_memory->type,
+           lexer_memory->line, lexer_memory->start, lexer_memory->end);
+    lexer_memory += 1;
   }
 
   // Don't forget to unmap and close the file descriptor
@@ -107,4 +121,20 @@ i32 main(i32 argc, char **argv) {
   close(file_descriptor);
 
   return EX_OK;
+}
+
+internal void log_error(const char *message, const char *file, int line) {
+  char errbuf[512];
+  if (errno) {
+    strerror_r(errno, errbuf, sizeof(errbuf)); // Thread-safe strerror
+  }
+
+  fprintf(stderr, "ERROR:%s:%d : %s\n", file, line, message);
+  if (errno) {
+    fprintf(stderr, "System ERROR: %s\n", errbuf);
+  }
+}
+
+internal void log_info(const char *message, const char *file, int line) {
+  printf("INFO:%s:%d : %s\n", file, line, message);
 }
