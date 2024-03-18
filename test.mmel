@@ -1,0 +1,10 @@
+main: fn() -> (status: i32) = {
+    sum : mut i32 = 0
+    a : i32 = 4
+    b : i32 = get_number(a)
+    sum = a + b
+}
+
+get_number: fn(a: i32) -> (number: i32) = {
+    number = 5
+}
