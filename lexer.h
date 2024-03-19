@@ -11,7 +11,7 @@ extern "C" {
 typedef struct {
   const char *const file_buffer_ptr;
   CompilerMemory compiler_memory;
-  i64 file_buffer_lenght;
+  u64 file_buffer_lenght;
 } lexer_input;
 
 typedef enum {
@@ -20,9 +20,10 @@ typedef enum {
   TOKEN_TYPE_RIGHT_PARENTHESIS,
   TOKEN_TYPE_LEFT_BRACE,
   TOKEN_TYPE_RIGHT_BRACE,
+  TOKEN_TYPE_LEFT_BRACKET,
+  TOKEN_TYPE_RIGHT_BRACKET,
   TOKEN_TYPE_COMMA,
   TOKEN_TYPE_DOT,
-  TOKEN_TYPE_MINUS,
   TOKEN_TYPE_PLUS,
   TOKEN_TYPE_SLASH,
   TOKEN_TYPE_STAR,
@@ -39,6 +40,7 @@ typedef enum {
   TOKEN_TYPE_LESS,
   TOKEN_TYPE_LESS_EQUAL,
   TOKEN_TYPE_ARROW,
+  TOKEN_TYPE_MINUS,
 
   // Literals.
   TOKEN_TYPE_IDENTIFIER,
@@ -78,9 +80,9 @@ typedef enum {
 
 typedef struct {
   TokenType type;
-  i64 start;
-  i64 end;
-  i64 line;
+  u64 start;
+  u64 end;
+  u64 line;
 } lexeme;
 
 typedef struct {
@@ -102,21 +104,163 @@ extern lexer_output lexer_stage(lexer_input input) {
   printf("---STARTING LEXER STAGE---\n\n");
 
   u64 lexeme_count = 0;
+  u64 line = 0;
   lexeme *lexer_memory = (lexeme *)input.compiler_memory.lexer_memory_ptr;
-  for (i64 pos = 0; pos < input.file_buffer_lenght; pos += 1) {
+
+  u64 pos = 0;
+  while (pos < input.file_buffer_lenght) {
     char character = input.file_buffer_ptr[pos];
+    u64 start = pos;
+    pos += 1;
+
     switch (character) {
+    case '\n': {
+      line += 1;
+    } break;
     case '(': {
-
       lexer_memory->type = TOKEN_TYPE_LEFT_PARENTHESIS;
-      lexer_memory->start = pos;
-      lexer_memory->end = pos + 1;
-      lexer_memory->line = 0;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
 
-      // printf("type: %d, start: %lld, end: %lld, line: %lld, memory: %lld "
-      //        "sizeof: %lld\n",
-      //        lexer_memory->type, lexer_memory->start, lexer_memory->end,
-      //        lexer_memory->line, lexer_memory, sizeof(lexeme));
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case ')': {
+      lexer_memory->type = TOKEN_TYPE_RIGHT_PARENTHESIS;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case '{': {
+      lexer_memory->type = TOKEN_TYPE_LEFT_BRACE;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case '}': {
+      lexer_memory->type = TOKEN_TYPE_RIGHT_BRACE;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case '[': {
+      lexer_memory->type = TOKEN_TYPE_LEFT_BRACKET;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case ']': {
+      lexer_memory->type = TOKEN_TYPE_RIGHT_BRACKET;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case ',': {
+      lexer_memory->type = TOKEN_TYPE_COMMA;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case '.': {
+      lexer_memory->type = TOKEN_TYPE_DOT;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case '+': {
+      lexer_memory->type = TOKEN_TYPE_PLUS;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case '/': {
+      lexer_memory->type = TOKEN_TYPE_SLASH;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case '*': {
+      lexer_memory->type = TOKEN_TYPE_STAR;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case '#': {
+      char next_character = input.file_buffer_ptr[pos];
+      while (!(next_character == '#' || next_character == '\n')) {
+        next_character = input.file_buffer_ptr[pos];
+        pos += 1;
+      }
+      if (next_character == '\n') {
+        line += 1;
+      }
+
+    } break;
+    case '%': {
+      lexer_memory->type = TOKEN_TYPE_MODULO;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+      lexer_memory->line = line;
+
+      lexer_memory += 1;
+      lexeme_count += 1;
+
+    } break;
+    case '-': {
+      char next_character = input.file_buffer_ptr[pos];
+      if (next_character == '>') {
+        lexer_memory->type = TOKEN_TYPE_ARROW;
+        pos += 1;
+      } else {
+        lexer_memory->type = TOKEN_TYPE_MINUS;
+      }
+
+      lexer_memory->line = line;
+      lexer_memory->start = start;
+      lexer_memory->end = pos;
+
       lexer_memory += 1;
       lexeme_count += 1;
 

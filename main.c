@@ -110,7 +110,7 @@ i32 main(i32 argc, char **argv) {
   lexer_output lexer_output = lexer_stage(lexer_input);
 
   lexeme *lexer_memory = (lexeme *)memory.lexer_memory_ptr;
-  for (i64 index = 0; index < lexer_output.lexemes_count; ++index) {
+  for (u64 index = 0; index < lexer_output.lexemes_count; ++index) {
     printf("Type:%d\nLine:%lld\nStart: %lld End: %lld\n\n", lexer_memory->type,
            lexer_memory->line, lexer_memory->start, lexer_memory->end);
     lexer_memory += 1;
@@ -133,8 +133,4 @@ internal void log_error(const char *message, const char *file, int line) {
   if (errno) {
     fprintf(stderr, "System ERROR: %s\n", errbuf);
   }
-}
-
-internal void log_info(const char *message, const char *file, int line) {
-  printf("INFO:%s:%d : %s\n", file, line, message);
 }
