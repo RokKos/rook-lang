@@ -1,0 +1,12 @@
+BasedOnStyle: Mozilla
+
+CompileFlags:
+  Add: [
+    "-O3",                  # Optimization for speed
+    "-Wall", "-Wextra",     # Enable common and extra warnings
+    "-Werror",              # Treat warnings as errors
+    "-std=c99",             # Enforce C99 standard
+    "-fstack-protector-strong", # Stack protection for security
+    "-fsanitize=address", "-fsanitize=undefined", # Runtime checks
+    "-pedantic"             # Warn on non-standard extensions
+  ]
