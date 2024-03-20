@@ -24,9 +24,9 @@ typedef struct lexer_output lexer_output;
 // MAIN ENTRY FOR THIS STAGE
 extern lexer_output lexer_stage(lexer_input input);
 
-typedef enum {
+typedef enum __attribute__((__packed__)) {
   // Single-character tokens.
-  TOKEN_TYPE_LEFT_PARENTHESIS,
+  TOKEN_TYPE_LEFT_PARENTHESIS = 0,
   TOKEN_TYPE_RIGHT_PARENTHESIS,
   TOKEN_TYPE_LEFT_BRACE,
   TOKEN_TYPE_RIGHT_BRACE,
@@ -85,9 +85,13 @@ typedef enum {
   TOKEN_TYPE_INTERNAL,
   TOKEN_TYPE_LOCAL_PERSIST,
 
-  TOKEN_TYPE_EOF
+  TOKEN_TYPE_EOF,
+  TOKEN_TYPE_COUNT
 } TokenType;
 
+COMPILE_TIME_ASSERT(sizeof(TokenType) == sizeof(u8));
+
+extern const char *lexer_token_type_string(TokenType token_type);
 
 typedef struct {
   TokenType type;
