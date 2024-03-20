@@ -110,9 +110,17 @@ i32 main(i32 argc, char **argv) {
   lexer_output lexer_output = lexer_stage(lexer_input);
 
   lexeme *lexer_memory = (lexeme *)memory.lexer_memory_ptr;
+  u64 line = lexer_memory->line;
   for (u64 index = 0; index < lexer_output.lexemes_count; ++index) {
-    printf("Type:%d\nLine:%lld\nStart: %lld End: %lld\n\n", lexer_memory->type,
-           lexer_memory->line, lexer_memory->start, lexer_memory->end);
+    printf("%s ", lexer_token_type_string(lexer_memory->type));
+
+    if (lexer_memory->line != line) {
+      line = lexer_memory->line;
+      printf("\n");
+    }
+    // printf("Type:%d\nLine:%lld\nStart: %lld End: %lld\n\n",
+    // lexer_memory->type,
+    //        lexer_memory->line, lexer_memory->start, lexer_memory->end);
     lexer_memory += 1;
   }
 

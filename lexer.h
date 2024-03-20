@@ -3,6 +3,7 @@
 
 #include "defines.h"
 #include "memory.h"
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -278,6 +279,80 @@ extern lexer_output lexer_stage(lexer_input input) {
   }
 
   return (lexer_output){.lexemes_count = lexeme_count};
+}
+
+internal const char *token_type_strings[TOKEN_TYPE_COUNT] = {
+    // clang-format off
+  
+    // Single-character tokens.
+    "LEFT_PARENTHESIS",
+    "RIGHT_PARENTHESIS",
+    "LEFT_BRACE",
+    "RIGHT_BRACE",
+    "LEFT_BRACKET",
+    "RIGHT_BRACKET",
+    "COMMA",
+    "DOT",
+    "PLUS",
+    "SLASH",
+    "STAR",
+    "HASH",
+    "MODULO",
+
+    // One or two character tokens.
+    "NOT",
+    "NOT_EQUAL",
+    "ASSIGN",
+    "EQUALITY",
+    "GREATER",
+    "GREATER_EQUAL",
+    "LESS",
+    "LESS_EQUAL",
+    "ARROW",
+    "MINUS",
+
+    // Literals.
+    "IDENTIFIER",
+    "STRING",
+    "INTEGERS",
+    "FLOATS",
+
+    // Keywords.
+    "AND",
+    "OR",
+    "XOR",
+    "BIT_AND",
+    "BIT_OR",
+    "BIT_XOR",
+    "FN",
+    "DEFER",
+    "RETURN",
+    "IF",
+    "ELSE",
+    "WHILE",
+    "SWITCH",
+    "PARTIAL_SWITCH",
+
+    "I32",
+    "U32",
+    "I64",
+    "U64",
+    "ENUM",
+    "STRUCT",
+    "MEM_OF",
+    "MUT",
+    "INTERNAL",
+    "LOCAL_PERSIST",
+
+    "EOF"
+
+// clang-format on 
+};
+extern const char *lexer_token_type_string(TokenType token_type) {
+  assert(token_type < TOKEN_TYPE_COUNT);
+
+  return token_type_strings[token_type];
+
 }
 
 #ifdef LEXER_TEST
