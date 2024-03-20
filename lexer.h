@@ -14,6 +14,16 @@ typedef struct {
   u64 file_buffer_lenght;
 } lexer_input;
 
+typedef struct {
+  u64 lexemes_count;
+} lexer_output;
+
+struct lexer_output;
+typedef struct lexer_output lexer_output;
+
+// MAIN ENTRY FOR THIS STAGE
+extern lexer_output lexer_stage(lexer_input input);
+
 typedef enum {
   // Single-character tokens.
   TOKEN_TYPE_LEFT_PARENTHESIS,
@@ -78,18 +88,13 @@ typedef enum {
   TOKEN_TYPE_EOF
 } TokenType;
 
+
 typedef struct {
   TokenType type;
   u64 start;
   u64 end;
   u64 line;
 } lexeme;
-
-typedef struct {
-  u64 lexemes_count;
-} lexer_output;
-
-extern lexer_output lexer_stage(lexer_input input);
 
 #ifdef __cplusplus
 }
