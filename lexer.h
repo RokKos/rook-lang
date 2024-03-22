@@ -108,8 +108,9 @@ typedef struct {
 
 #include <stdio.h>
 
-internal void lexer_add_token(TokenType token_type, lexeme *lexer_memory,
-                              u64 start, u64 end, u64 line);
+internal void lexer_add_token(TokenType token_type, lexeme **lexer_memory,
+                              u64 *const lexeme_count, u64 start, u64 end,
+                              u64 line);
 
 extern lexer_output lexer_stage(lexer_input input) {
   printf("---STARTING LEXER STAGE---\n\n");
@@ -130,73 +131,58 @@ extern lexer_output lexer_stage(lexer_input input) {
       line += 1;
     } break;
     case '(': {
-      lexer_add_token(TOKEN_TYPE_LEFT_PARENTHESIS, lexer_memory, start, pos,
-                      line);
-      // TODO(Rok Kos): Investigate why if you increment lexer_memory in a
-      // function it increments global pointer
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_LEFT_PARENTHESIS, &lexer_memory, &lexeme_count,
+                      start, pos, line);
 
     } break;
     case ')': {
-      lexer_add_token(TOKEN_TYPE_RIGHT_PARENTHESIS, lexer_memory, start, pos,
-                      line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_RIGHT_PARENTHESIS, &lexer_memory,
+                      &lexeme_count, start, pos, line);
 
     } break;
     case '{': {
-      lexer_add_token(TOKEN_TYPE_LEFT_BRACE, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_LEFT_BRACE, &lexer_memory, &lexeme_count,
+                      start, pos, line);
 
     } break;
     case '}': {
-      lexer_add_token(TOKEN_TYPE_RIGHT_BRACE, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_RIGHT_BRACE, &lexer_memory, &lexeme_count,
+                      start, pos, line);
 
     } break;
     case '[': {
-      lexer_add_token(TOKEN_TYPE_LEFT_BRACKET, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_LEFT_BRACKET, &lexer_memory, &lexeme_count,
+                      start, pos, line);
 
     } break;
     case ']': {
-      lexer_add_token(TOKEN_TYPE_RIGHT_BRACKET, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_RIGHT_BRACKET, &lexer_memory, &lexeme_count,
+                      start, pos, line);
 
     } break;
     case ',': {
-      lexer_add_token(TOKEN_TYPE_COMMA, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_RIGHT_BRACKET, &lexer_memory, &lexeme_count,
+                      start, pos, line);
 
     } break;
     case '.': {
-      lexer_add_token(TOKEN_TYPE_DOT, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_DOT, &lexer_memory, &lexeme_count, start, pos,
+                      line);
 
     } break;
     case '+': {
-      lexer_add_token(TOKEN_TYPE_PLUS, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_PLUS, &lexer_memory, &lexeme_count, start, pos,
+                      line);
 
     } break;
     case '/': {
-      lexer_add_token(TOKEN_TYPE_SLASH, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_SLASH, &lexer_memory, &lexeme_count, start,
+                      pos, line);
 
     } break;
     case '*': {
-      lexer_add_token(TOKEN_TYPE_STAR, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_STAR, &lexer_memory, &lexeme_count, start, pos,
+                      line);
 
     } break;
     case '#': {
@@ -211,50 +197,45 @@ extern lexer_output lexer_stage(lexer_input input) {
 
     } break;
     case '%': {
-      lexer_add_token(TOKEN_TYPE_MODULO, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_MODULO, &lexer_memory, &lexeme_count, start,
+                      pos, line);
 
     } break;
     case ':': {
-      lexer_add_token(TOKEN_TYPE_COLON, lexer_memory, start, pos, line);
-      lexeme_count += 1;
-      lexer_memory += 1;
+      lexer_add_token(TOKEN_TYPE_COLON, &lexer_memory, &lexeme_count, start,
+                      pos, line);
 
     } break;
     case '-': {
       char next_character = input.file_buffer_ptr[pos];
       if (next_character == '>') {
         pos += 1;
-        lexer_add_token(TOKEN_TYPE_ARROW, lexer_memory, start, pos, line);
+        lexer_add_token(TOKEN_TYPE_ARROW, &lexer_memory, &lexeme_count, start,
+                        pos, line);
       } else {
 
-        lexer_add_token(TOKEN_TYPE_MINUS, lexer_memory, start, pos, line);
+        lexer_add_token(TOKEN_TYPE_MINUS, &lexer_memory, &lexeme_count, start,
+                        pos, line);
       }
-
-      lexeme_count += 1;
-      lexer_memory += 1;
 
     } break;
     case '=': {
       char next_character = input.file_buffer_ptr[pos];
       if (next_character == '=') {
         pos += 1;
-        lexer_add_token(TOKEN_TYPE_EQUALITY, lexer_memory, start, pos, line);
+        lexer_add_token(TOKEN_TYPE_EQUALITY, &lexer_memory, &lexeme_count,
+                        start, pos, line);
       } else {
-        lexer_add_token(TOKEN_TYPE_ASSIGN, lexer_memory, start, pos, line);
+        lexer_add_token(TOKEN_TYPE_ASSIGN, &lexer_memory, &lexeme_count, start,
+                        pos, line);
       }
-
-      lexeme_count += 1;
-      lexer_memory += 1;
 
     } break;
     }
   }
 
-  lexer_add_token(TOKEN_TYPE_EOF, lexer_memory, start, pos, line);
-  lexeme_count += 1;
-  lexer_memory += 1;
+  lexer_add_token(TOKEN_TYPE_EOF, &lexer_memory, &lexeme_count, start, pos,
+                  line);
 
   return (lexer_output){.lexemes_count = lexeme_count};
 }
@@ -325,15 +306,24 @@ internal const char *token_type_strings[TOKEN_TYPE_COUNT] = {
 
     "EOF"
 
-// clang-format on 
+    // clang-format on
 };
 
-internal void lexer_add_token(TokenType token_type, lexeme *lexer_memory,
-                              u64 start, u64 end, u64 line){
-      lexer_memory->type = token_type;
-      lexer_memory->start = start;
-      lexer_memory->end = end;
-      lexer_memory->line = line;
+// NOTE(Rok Kos): We need to pass lexer_memory by pointer to pointer, because C
+// passes everything by value so if we would do only lexeme *lexer_memory it
+// would create a copy of a pointer and it wouldn't increment the address of a
+// pointer
+internal void lexer_add_token(TokenType token_type, lexeme **lexer_memory,
+                              u64 *const lexeme_count, u64 start, u64 end,
+                              u64 line) {
+  lexeme *lexeme = *lexer_memory;
+  lexeme->type = token_type;
+  lexeme->start = start;
+  lexeme->end = end;
+  lexeme->line = line;
+
+  *lexer_memory = *lexer_memory + 1;
+  *lexeme_count = *lexeme_count + 1;
 }
 
 extern const char *lexer_token_type_string(TokenType token_type) {
@@ -341,7 +331,6 @@ extern const char *lexer_token_type_string(TokenType token_type) {
   assert(token_type_strings[token_type] != 0);
 
   return token_type_strings[token_type];
-
 }
 
 #ifdef LEXER_TEST
