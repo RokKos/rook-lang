@@ -1,4 +1,3 @@
-#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +10,8 @@
 #include "defines.h"
 #include "memory.h"
 
+#define LOG_IMPLEMENTATION
+#include "log.h"
 #define LEXER_IMPLEMENTATION
 #include "lexer.h"
 
@@ -19,8 +20,6 @@ const char K_COMMAND_BUILD[6] = "build\0";
 const char K_USAGE_INSTRUCTION[] =
     "Usage mmel <command> <file_path>\nCommands:\nrun - Builds and runs the "
     "program\nbuild - Builds the program\n";
-
-internal void log_error(const char *message, const char *file, int line);
 
 i32 main(i32 argc, char **argv) {
 
@@ -129,16 +128,4 @@ i32 main(i32 argc, char **argv) {
   close(file_descriptor);
 
   return EX_OK;
-}
-
-internal void log_error(const char *message, const char *file, int line) {
-  char errbuf[512];
-  if (errno) {
-    strerror_r(errno, errbuf, sizeof(errbuf)); // Thread-safe strerror
-  }
-
-  fprintf(stderr, "ERROR:%s:%d : %s\n", file, line, message);
-  if (errno) {
-    fprintf(stderr, "System ERROR: %s\n", errbuf);
-  }
 }
