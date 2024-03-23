@@ -1,37 +1,37 @@
-main: fn() -> (status: u32) = {
-    max_number: u32 = 100
-    is_prime_number: arr u32 = {max_number, 0}
+main: fn() -> (status: u32) <- {
+    max_number: u32 <- 100
+    is_prime_number: arr u32 <- {max_number, 0}
     fill_primes(mem_of is_prime_number, is_prime_number.len)
 
-    i : mut u32 = 0 
+    i : mut u32 <- 0 
     while(i < max_number) {
-        defer {i = i + 1}
-        if(is_prime_number[i] != 0){
+        defer {i <- i + 1}
+        if(not (is_prime_number[i] = 0){
           print("{i} is prime\n")
         } else {
           print("{i} not is prime\n")
         }
     }
 
-    status = 0
+    status <- 0
 }
 
-fill_primes: fn(primes_ptr: mem_of arr u32, len: u64) = {
-    i: mut u64 = 2
+fill_primes: fn(primes_ptr: mem_of arr u32, len: u64) <- {
+    i: mut u64 <- 2
     while(i < len){
-      defer {i = i + 1}
+      defer {i <- i + 1}
     
-      is_prime_number : mut u32 = 1 
+      is_prime_number : mut u32 <- 1 
 
-      j: mut u64 = 2
+      j: mut u64 <- 2
       while(j < i) {
-        defer{j = j + 1}
-        if (i % j == 0) {
-          is_prime_number = 0
+        defer{j <- j + 1}
+        if (i % j = 0) {
+          is_prime_number <- 0
         }
 
       }
 
-      primes_ptr[i] = is_prime_number;
+      primes_ptr[i] <- is_prime_number;
     }
 } 

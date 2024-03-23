@@ -11,6 +11,7 @@ extern "C" {
 
 typedef struct {
   const char *const file_buffer_ptr;
+  const char *const file_name;
   CompilerMemory compiler_memory;
   u64 file_buffer_lenght;
 } lexer_input;
@@ -40,8 +41,6 @@ typedef enum __attribute__((__packed__)) {
   TOKEN_TYPE_COLON,
 
   // One or two character tokens.
-  TOKEN_TYPE_NOT,
-  TOKEN_TYPE_NOT_EQUAL,
   TOKEN_TYPE_ASSIGN,
   TOKEN_TYPE_EQUALITY,
   TOKEN_TYPE_GREATER,
@@ -58,6 +57,7 @@ typedef enum __attribute__((__packed__)) {
   TOKEN_TYPE_FLOATS,
 
   // Keywords.
+  TOKEN_TYPE_NOT,
   TOKEN_TYPE_AND,
   TOKEN_TYPE_OR,
   TOKEN_TYPE_XOR,
@@ -106,11 +106,18 @@ typedef struct {
 #define LEXER_IMPLEMENTATION
 #ifdef LEXER_IMPLEMENTATION
 
+#include "log.h"
 #include <stdio.h>
+#include <string.h>
 
 internal void lexer_add_token(TokenType token_type, lexeme **lexer_memory,
                               u64 *const lexeme_count, u64 start, u64 end,
                               u64 line);
+
+internal i32 lexer_is_number(char character);
+internal i32 lexer_is_alphabet(char character);
+enum { K_KEYWORDS_COUNT = 25 };
+internal const char keywords_strings[K_KEYWORDS_COUNT][32];
 
 extern lexer_output lexer_stage(lexer_input input) {
   printf("---STARTING LEXER STAGE---\n\n");
@@ -127,6 +134,11 @@ extern lexer_output lexer_stage(lexer_input input) {
     pos += 1;
 
     switch (character) {
+    case ' ':
+    case '\r':
+    case '\t':
+      break;
+
     case '\n': {
       line += 1;
     } break;
@@ -187,7 +199,8 @@ extern lexer_output lexer_stage(lexer_input input) {
     } break;
     case '#': {
       char next_character = input.file_buffer_ptr[pos];
-      while (!(next_character == '#' || next_character == '\n')) {
+      while (!(next_character == '#' || next_character == '\n') &&
+             pos < input.file_buffer_lenght) {
         next_character = input.file_buffer_ptr[pos];
         pos += 1;
       }
@@ -220,17 +233,114 @@ extern lexer_output lexer_stage(lexer_input input) {
 
     } break;
     case '=': {
+      lexer_add_token(TOKEN_TYPE_EQUALITY, &lexer_memory, &lexeme_count, start,
+                      pos, line);
+    } break;
+    case '<': {
       char next_character = input.file_buffer_ptr[pos];
-      if (next_character == '=') {
+      if (next_character == '-') {
         pos += 1;
-        lexer_add_token(TOKEN_TYPE_EQUALITY, &lexer_memory, &lexeme_count,
+        lexer_add_token(TOKEN_TYPE_ASSIGN, &lexer_memory, &lexeme_count, start,
+                        pos, line);
+      } else if (next_character == '=') {
+        pos += 1;
+        lexer_add_token(TOKEN_TYPE_LESS_EQUAL, &lexer_memory, &lexeme_count,
                         start, pos, line);
       } else {
-        lexer_add_token(TOKEN_TYPE_ASSIGN, &lexer_memory, &lexeme_count, start,
+        lexer_add_token(TOKEN_TYPE_LESS, &lexer_memory, &lexeme_count, start,
                         pos, line);
       }
 
     } break;
+    case '>': {
+      char next_character = input.file_buffer_ptr[pos];
+      if (next_character == '=') {
+        pos += 1;
+        lexer_add_token(TOKEN_TYPE_GREATER_EQUAL, &lexer_memory, &lexeme_count,
+                        start, pos, line);
+      } else {
+        lexer_add_token(TOKEN_TYPE_GREATER, &lexer_memory, &lexeme_count, start,
+                        pos, line);
+      }
+
+    } break;
+    case '"': {
+      char next_character = input.file_buffer_ptr[pos];
+      while (!(next_character == '"') && !(pos >= input.file_buffer_lenght)) {
+        next_character = input.file_buffer_ptr[pos];
+        pos += 1;
+        if (next_character == '\n') {
+          line += 1;
+        }
+      }
+      if (pos == input.file_buffer_lenght) {
+        log_error("LEXER ERROR: Unterminated string.", input.file_name, line);
+      }
+
+      lexer_add_token(TOKEN_TYPE_STRING, &lexer_memory, &lexeme_count, start,
+                      pos, line);
+    } break;
+    default: {
+
+      if (lexer_is_number(character)) {
+        char next_character = input.file_buffer_ptr[pos];
+        while ((lexer_is_number(next_character) || next_character == '_') &&
+               pos < input.file_buffer_lenght) {
+          pos += 1;
+
+          next_character = input.file_buffer_ptr[pos];
+        }
+
+        if (next_character == '.') {
+
+          while ((lexer_is_number(next_character) || next_character == '_') &&
+                 pos < input.file_buffer_lenght) {
+            pos += 1;
+
+            next_character = input.file_buffer_ptr[pos];
+          }
+
+          lexer_add_token(TOKEN_TYPE_FLOATS, &lexer_memory, &lexeme_count,
+                          start, pos, line);
+
+        } else {
+          lexer_add_token(TOKEN_TYPE_INTEGERS, &lexer_memory, &lexeme_count,
+                          start, pos, line);
+        }
+      } else if (lexer_is_alphabet(character)) {
+        char next_character = input.file_buffer_ptr[pos];
+        while ((lexer_is_alphabet(next_character) ||
+                lexer_is_number(next_character)) &&
+               pos < input.file_buffer_lenght) {
+          pos += 1;
+
+          next_character = input.file_buffer_ptr[pos];
+        }
+
+        i32 length = pos - start;
+        char identifier[length + 1];
+        strncpy(identifier, input.file_buffer_ptr + start, length);
+        identifier[length] = '\0';
+
+        i32 found_keyword = 0;
+        for (i32 i = 0; i < 24; i += 1) {
+          if (strcmp(identifier, keywords_strings[i]) == 0) {
+
+            lexer_add_token(
+                (TokenType)(TOKEN_TYPE_COUNT - K_KEYWORDS_COUNT + i),
+                &lexer_memory, &lexeme_count, start, pos, line);
+            found_keyword = 1;
+            break;
+          }
+        }
+        if (found_keyword == 1) {
+
+        } else {
+          lexer_add_token(TOKEN_TYPE_IDENTIFIER, &lexer_memory, &lexeme_count,
+                          start, pos, line);
+        }
+      }
+    }
     }
   }
 
@@ -240,7 +350,38 @@ extern lexer_output lexer_stage(lexer_input input) {
   return (lexer_output){.lexemes_count = lexeme_count};
 }
 
-internal const char *token_type_strings[TOKEN_TYPE_COUNT] = {
+internal const char keywords_strings[K_KEYWORDS_COUNT][32] = {
+    // clang-format off
+    "not",
+    "and",
+    "or",
+    "xor",
+    "bit_and",
+    "bit_or",
+    "bit_xor",
+    "fn",
+    "defer",
+    "return",
+    "if",
+    "else",
+    "while",
+    "switch",
+    "partial_switch",
+
+    "i32",
+    "u32",
+    "i64",
+    "u64",
+    "enum",
+    "struct",
+    "mem_of",
+    "mut",
+    "internal",
+    "local_persist",
+    // clang-format on
+};
+
+internal const char token_type_strings[TOKEN_TYPE_COUNT][32] = {
     // clang-format off
   
     // Single-character tokens.
@@ -260,8 +401,6 @@ internal const char *token_type_strings[TOKEN_TYPE_COUNT] = {
     "COLON",
 
     // One or two character tokens.
-    "NOT",
-    "NOT_EQUAL",
     "ASSIGN",
     "EQUALITY",
     "GREATER",
@@ -278,6 +417,7 @@ internal const char *token_type_strings[TOKEN_TYPE_COUNT] = {
     "FLOATS",
 
     // Keywords.
+    "NOT",
     "AND",
     "OR",
     "XOR",
@@ -309,7 +449,7 @@ internal const char *token_type_strings[TOKEN_TYPE_COUNT] = {
     // clang-format on
 };
 
-// NOTE(Rok Kos): We need to pass lexer_memory by pointer to pointer, because C
+// NOTE:(Rok Kos): We need to pass lexer_memory by pointer to pointer, because C
 // passes everything by value so if we would do only lexeme *lexer_memory it
 // would create a copy of a pointer and it wouldn't increment the address of a
 // pointer
@@ -324,6 +464,16 @@ internal void lexer_add_token(TokenType token_type, lexeme **lexer_memory,
 
   *lexer_memory = *lexer_memory + 1;
   *lexeme_count = *lexeme_count + 1;
+}
+
+internal i32 lexer_is_number(char character) {
+  return character >= '0' && character <= '9';
+}
+
+// TODO: (Rok Kos): Think if you want to allow any other special characters here
+internal i32 lexer_is_alphabet(char character) {
+  return (character >= 'a' && character <= 'z') ||
+         (character >= 'a' && character <= 'Z') || (character == '_');
 }
 
 extern const char *lexer_token_type_string(TokenType token_type) {
