@@ -1,5 +1,3 @@
-BasedOnStyle: Mozilla
-
 CompileFlags:
   Add: [
     "-O3",                  # Optimization for speed
