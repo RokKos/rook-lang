@@ -1,4 +1,4 @@
-main: fn() -> (status: u32) <- {
+main: () -> (status: u32) <- {
     max_number: u32 <- 100
     is_prime_number: arr u32 <- {max_number, 0}
     fill_primes(mem_of is_prime_number, is_prime_number.len)
@@ -16,7 +16,7 @@ main: fn() -> (status: u32) <- {
     status <- 0
 }
 
-fill_primes: fn(primes_ptr: mem_of arr u32, len: u64) <- {
+fill_primes: (primes_ptr: mem_of arr u32, len: u64) <- {
     i: mut u64 <- 2
     while(i < len){
       defer {i <- i + 1}

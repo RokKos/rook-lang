@@ -1,5 +1,5 @@
  # This is a main function   
-main: fn() -> (status: i32) <- {
+main: () -> (status: i32) <- {
     sum : mut i32 <- 0
     a : i32 <- 4
     b : i32 <- get_number(a)
@@ -7,6 +7,6 @@ main: fn() -> (status: i32) <- {
 }
 
 # getting a number
-get_number: fn(a: i32) -> (# named variable # number: i32) <-  {
+get_number: (a: i32) -> (# named variable # number: i32) <-  {
     number <-  5
 }

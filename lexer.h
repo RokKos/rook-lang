@@ -64,7 +64,6 @@ typedef enum __attribute__((__packed__)) {
   TOKEN_TYPE_BIT_AND,
   TOKEN_TYPE_BIT_OR,
   TOKEN_TYPE_BIT_XOR,
-  TOKEN_TYPE_FN,
   TOKEN_TYPE_DEFER,
   TOKEN_TYPE_RETURN,
   TOKEN_TYPE_IF,
@@ -116,7 +115,7 @@ internal void lexer_add_token(TokenType token_type, lexeme **lexer_memory,
 
 internal i32 lexer_is_number(char character);
 internal i32 lexer_is_alphabet(char character);
-enum { K_KEYWORDS_COUNT = 25 };
+enum { K_KEYWORDS_COUNT = TOKEN_TYPE_EOF - TOKEN_TYPE_NOT };
 internal const char keywords_strings[K_KEYWORDS_COUNT][32];
 
 extern lexer_output lexer_stage(lexer_input input) {
@@ -323,11 +322,11 @@ extern lexer_output lexer_stage(lexer_input input) {
         identifier[length] = '\0';
 
         i32 found_keyword = 0;
-        for (i32 i = 0; i < 24; i += 1) {
+        for (i32 i = 0; i < K_KEYWORDS_COUNT; i += 1) {
           if (strcmp(identifier, keywords_strings[i]) == 0) {
 
             lexer_add_token(
-                (TokenType)(TOKEN_TYPE_COUNT - K_KEYWORDS_COUNT + i),
+                (TokenType)(TOKEN_TYPE_COUNT - K_KEYWORDS_COUNT + i - 1),
                 &lexer_memory, &lexeme_count, start, pos, line);
             found_keyword = 1;
             break;
@@ -359,7 +358,6 @@ internal const char keywords_strings[K_KEYWORDS_COUNT][32] = {
     "bit_and",
     "bit_or",
     "bit_xor",
-    "fn",
     "defer",
     "return",
     "if",
@@ -424,7 +422,6 @@ internal const char token_type_strings[TOKEN_TYPE_COUNT][32] = {
     "BIT_AND",
     "BIT_OR",
     "BIT_XOR",
-    "FN",
     "DEFER",
     "RETURN",
     "IF",
