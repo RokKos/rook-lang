@@ -24,6 +24,7 @@ type BlogPost struct {
 }
 
 func main() {
+	output_folder := "static"
 	blog_dir := "blog_entries"
 	md_ending := ".md"
 
@@ -54,7 +55,7 @@ func main() {
 			blog_posts = append(blog_posts, blog_post)
 
 			// Create a page for each post.
-			blog_post_index_file_path := slug.Make(path.Join(blog_post.Date, blog_post.Title))
+			blog_post_index_file_path := path.Join(output_folder, slug.Make(path.Join(blog_post.Date, blog_post.Title)))
 			if err := os.MkdirAll(blog_post_index_file_path, 0755); err != nil && err != os.ErrExist {
 				log.Fatalf("failed to create dir %q: %v", blog_post_index_file_path, err)
 			}
@@ -84,7 +85,7 @@ func main() {
 		return nil
 	})
 
-	f, err := os.Create("index.html")
+	f, err := os.Create(path.Join(output_folder, "index.html"))
 	if err != nil {
 		log.Fatalf("failed to create output file: %v", err)
 	}
