@@ -1,0 +1,76 @@
+package main
+
+import "path"
+import "github.com/gosimple/slug"
+
+templ head(title string) {
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>{ title }</title>
+		//{#- CSS#}
+		//<link rel="stylesheet" href="{{ pathto(css_file, 1)|escape }}" type="text/css"/>
+		//{#- FAVICON #}
+		//  <link rel="shortcut icon" href="{{ favicon_url }}"/>
+		//{#- CANONICAL URL #}
+		//  <link rel="canonical" href="{{ pageurl|e }}" />
+		// {#- JAVASCRIPTS #}
+		//   <script src="{{ pathto('_static/js/theme.js', 1) }}"></script>
+		//   {#- OPENSEARCH #}
+		//   <link rel="search" type="application/opensearchdescription+xml"
+		//         title="{% trans docstitle=docstitle|e %}Search within {{ docstitle }}{% endtrans %}"
+		//         href="{{ pathto('_static/opensearch.xml', 1) }}"/>
+		// {%- block linktags %}
+		//   {%- if hasdoc('about') %}
+		//   <link rel="author" title="{{ _('About these documents') }}" href="{{ pathto('about') }}" />
+		//   {%- endif %}
+		//   {%- if hasdoc('genindex') %}
+		//   <link rel="index" title="{{ _('Index') }}" href="{{ pathto('genindex') }}" />
+		//   {%- endif %}
+		//   {%- if hasdoc('search') %}
+		//   <link rel="search" title="{{ _('Search') }}" href="{{ pathto('search') }}" />
+		//   {%- endif %}
+		//   {%- if hasdoc('copyright') %}
+		//   <link rel="copyright" title="{{ _('Copyright') }}" href="{{ pathto('copyright') }}" />
+		//   {%- endif %}
+		//   {%- if next %}
+		//   <link rel="next" title="{{ next.title|striptags|e }}" href="{{ next.link|e }}" />
+		//   {%- endif %}
+		//   {%- if prev %}
+		//   <link rel="prev" title="{{ prev.title|striptags|e }}" href="{{ prev.link|e }}" />
+		//   {%- endif %}
+	</head>
+}
+
+templ footer() {
+	<footer>
+		<p>Author: Rok Kos</p>
+	</footer>
+}
+
+templ index(title string, blog_posts []BlogPost) {
+	<!DOCTYPE html>
+	<html>
+		@head(title)
+		<body>
+			<h1>{ title }</h1>
+			<h3>REALLY ONLY ONE KEYWORD</h3>
+			for _, blog_post:= range blog_posts {
+				<div><a href={ templ.SafeURL(path.Join(slug.Make(path.Join(blog_post.Date, blog_post.Title)), "index.html")) }>{ blog_post.Title }</a> { blog_post.Date }</div>
+			}
+			@footer()
+		</body>
+	</html>
+}
+
+templ blogPage(title string, body templ.Component) {
+	<html>
+		@head(title)
+		<body>
+			<div class="content">
+				@body
+			</div>
+		</body>
+		@footer()
+	</html>
+}
