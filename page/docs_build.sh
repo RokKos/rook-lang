@@ -3,4 +3,4 @@
 templ generate
 go run .
 
-mv static ../static
+mv static ../docs
