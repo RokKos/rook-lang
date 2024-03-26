@@ -3,4 +3,7 @@
 templ generate
 go run .
 
-mv static ../docs
+rm -rf ../docs
+mkdir -p ../docs
+cp -r static/* ../docs/
+rm -rf static

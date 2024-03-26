@@ -41,7 +41,7 @@ func main() {
 				log.Fatalf("failed to reading %s : %v", s, err)
 			}
 
-			fmt.Printf("Contenst of file %s: %s", s, file_content)
+			//fmt.Printf("Contenst of file %s: %s", s, file_content)
 
 			file_name := filepath.Base(d.Name())
 			file_name = strings.TrimSuffix(file_name, filepath.Ext(file_name))
@@ -80,6 +80,8 @@ func main() {
 			if err != nil {
 				log.Fatalf("failed to write output file: %v", err)
 			}
+
+			fmt.Printf("Finished generating html for markdown file: %s", s)
 
 		}
 		return nil
