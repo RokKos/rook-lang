@@ -39,7 +39,7 @@ func head(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css\"></head>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css\"><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css\" integrity=\"sha256-GxX+KXGZigSK67YPJvbu12EiBx257zuZWr0AMiT1Kpg=\" crossorigin=\"anonymous\"><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css\" integrity=\"sha256-4CROCOz16nRjanuxMghkzZzCOdmwLXxFqCMCW7XG/lA=\" crossorigin=\"anonymous\"></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -70,7 +70,7 @@ func header(title string) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `index.templ`, Line: 51, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `index.templ`, Line: 53, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -161,7 +161,7 @@ func index(title string, blog_posts []BlogPost) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(blog_post.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `index.templ`, Line: 70, Col: 133}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `index.templ`, Line: 72, Col: 133}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -174,7 +174,7 @@ func index(title string, blog_posts []BlogPost) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(blog_post.Date)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `index.templ`, Line: 70, Col: 156}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `index.templ`, Line: 72, Col: 156}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -225,7 +225,7 @@ func blogPage(title string, body templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body><main class=\"container\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body><script src=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js\" integrity=\"sha256-4mJNT2bMXxcc1GCJaxBmMPdmah5ji0Ldnd79DKd1hoM=\" crossorigin=\"anonymous\"></script><script src=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/show-language/prism-show-language.min.js\" integrity=\"sha256-Iy5p6AvgpCeFkznsN5PvgtzOzu1zpWLGfVtPF5H9akk=\" crossorigin=\"anonymous\"></script><script src=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js\" integrity=\"sha256-9cmf7tcLdXpKsPi/2AWE93PbZpTp4M4tqzFk+lWomjU=\" crossorigin=\"anonymous\"></script><script src=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/download-button/prism-download-button.min.js\" integrity=\"sha256-PiPyHuA3kroLmPv7kodGZjYenCiLT9ByKGNyUq8c+3c=\" crossorigin=\"anonymous\"></script><script src=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/highlight-keywords/prism-highlight-keywords.min.js\" integrity=\"sha256-sh699gOPEsZSxJ31xDqtsO+cbLXu4TOjnMRXR2Rl0Zg=\" crossorigin=\"anonymous\"></script><script src=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clike.min.js\" integrity=\"sha256-x2uk4kCTK9x1VGvjDlUPW6XhOBX/cVEcduniesMHJEQ=\" crossorigin=\"anonymous\"></script><script src=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js\" integrity=\"sha256-ngXPISB7/0avv4DLj0O7WLxKSoe2jyi8BHA0L2k0Ugk=\" crossorigin=\"anonymous\"></script><script src=\"https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-odin.js\" integrity=\"sha256-yStf0dcidGeAVYThXrG7MhYIbp4CH+lS7pr62leZ0eQ=\" crossorigin=\"anonymous\"></script><main class=\"container\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
