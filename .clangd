@@ -6,5 +6,14 @@ CompileFlags:
     "-std=c99",             # Enforce C99 standard
     "-fstack-protector-strong", # Stack protection for security
     "-fsanitize=address", "-fsanitize=undefined", # Runtime checks
-    "-pedantic"             # Warn on non-standard extensions
+    "-pedantic",             # Warn on non-standard extensions
+    "-Wfloat-equal", "-Wundef", 
+    "-Wint-to-pointer-cast", "-Wshadow",
+    "-Wpointer-arith", "-Wcast-align", "-Wstrict-prototypes",
+    "-Wcast-qual", "-Wmissing-prototypes", "-Wstrict-overflow=5",
+    "-Wwrite-strings", "-Wconversion", "--pedantic-errors",
+
+"-DLEXER_IMPLEMENTATION=1",
+"-DMEMORY_IMPLEMENTATION=1",
+"-DLOG_IMPLEMENTATION=1",
   ]

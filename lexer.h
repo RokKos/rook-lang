@@ -102,7 +102,6 @@ typedef struct {
 }
 #endif
 
-#define LEXER_IMPLEMENTATION
 #ifdef LEXER_IMPLEMENTATION
 
 #include "log.h"
