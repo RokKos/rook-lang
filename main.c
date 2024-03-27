@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "defines.h"
+#define MEMORY_IMPLEMENTATION
 #include "memory.h"
 
 #define LOG_IMPLEMENTATION
@@ -57,16 +58,17 @@ i32 main(i32 argc, char **argv) {
     return EX_DATAERR;
   }
 
+  const u64 file_size_in_bytes = (u64)file_stats.st_size;
   const i32 offset = 0;
-  char *file_in_memory = mmap(NULL, file_stats.st_size, PROT_READ, MAP_PRIVATE,
+  char *file_in_memory = mmap(NULL, file_size_in_bytes, PROT_READ, MAP_PRIVATE,
                               file_descriptor, offset);
   if (file_in_memory == MAP_FAILED) {
     log_error("Error mapping file", __FILE__, __LINE__);
     close(file_descriptor);
     return EX_IOERR;
   }
-  for (i64 i = 0; i < file_stats.st_size;) {
-    i64 char_length = 1;
+  for (u64 i = 0; i < file_size_in_bytes;) {
+    u64 char_length = 1;
 
     // Determine the length of the UTF-8 character
     if ((file_in_memory[i] & 0x80) == 0x00) {
@@ -97,14 +99,14 @@ i32 main(i32 argc, char **argv) {
   if (memory.lexer_memory_ptr == NULL) {
     log_error("Cannot allocate 200kb for lexer", __FILE__, __LINE__);
 
-    munmap(file_in_memory, file_stats.st_size);
+    munmap(file_in_memory, file_size_in_bytes);
     close(file_descriptor);
 
     return EX_DATAERR;
   }
 
   lexer_input lexer_input = {.file_buffer_ptr = file_in_memory,
-                             .file_buffer_lenght = file_stats.st_size,
+                             .file_buffer_lenght = file_size_in_bytes,
                              .compiler_memory = memory};
   lexer_output lexer_output = lexer_stage(lexer_input);
 
@@ -124,7 +126,7 @@ i32 main(i32 argc, char **argv) {
   }
 
   // Don't forget to unmap and close the file descriptor
-  munmap(file_in_memory, file_stats.st_size);
+  munmap(file_in_memory, file_size_in_bytes);
   close(file_descriptor);
 
   return EX_OK;

@@ -5,7 +5,8 @@
 extern "C" {
 #endif
 
-extern void log_error(const char *message, const char *file, int line);
+extern void log_error(const char *message, const char *file,
+                      unsigned long long line);
 
 #ifdef __cplusplus
 }
@@ -13,14 +14,16 @@ extern void log_error(const char *message, const char *file, int line);
 
 #ifdef LOG_IMPLEMENTATION
 #include <errno.h>
+#include <stdio.h>
+#include <string.h>
 
-extern void log_error(const char *message, const char *file, int line) {
+void log_error(const char *message, const char *file, unsigned long long line) {
   char errbuf[512];
   if (errno) {
     strerror_r(errno, errbuf, sizeof(errbuf)); // Thread-safe strerror
   }
 
-  fprintf(stderr, "ERROR:%s:%d : %s\n", file, line, message);
+  fprintf(stderr, "ERROR:%s:%llu : %s\n", file, line, message);
   if (errno) {
     fprintf(stderr, "System ERROR: %s\n", errbuf);
   }
